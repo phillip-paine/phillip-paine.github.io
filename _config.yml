@@ -52,3 +52,5 @@ exclude:
 #  - vendor/gems/
 #  - vendor/ruby/
   - "*.ipynb"
+  - "_site"
+  - "notebooks/post_notebooks/*.ipynb"

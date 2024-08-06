@@ -143,11 +143,7 @@ plt.show()
 ```
 
 
-    <Figure size 800x600 with 0 Axes>
-
-
- 
-![png](markdown_images/creating-fpl-starting-team_11_1.png) 
+![png]({{ site.baseurl }}/assets/images/creating-fpl-starting-team_11_1.png) 
 
 
 
@@ -182,11 +178,7 @@ plt.show()
 ```
 
 
-    <Figure size 800x600 with 0 Axes>
-
-
- 
-![png](markdown_images/creating-fpl-starting-team_12_1.png) 
+![png]({{ site.baseurl }}/assets/images/creating-fpl-starting-team_12_1.png) 
 
 
 **Optimisation Model**
