@@ -1,14 +1,18 @@
 ---
 layout: page
-title: Creating FPL Starting Team Pre-Season
+title:  Fantasy Premier League Starting Team with Linear Programming
 date: 2024-08-03
 categories: fantasy-premier-league
 tags: [fpl, fantasy-premier-league, premier-league]
 ---
 
-# FPL New Season Team
+# Fantasy Premier League (FPL) : Creating the Starting Team
 
-In this notebook we find a starting 11 and subs bench for the upcoming 2024/2025 Fantasy Premier League (FPL) season using the player performance in 2023/2024, current FPL market price and opening Premier League fixtures. A linear optimisation (LP) model is used to find the optimal composition of players with budget and team count constraints. 
+The Fantasy Premier League (FPL) is a popular way of engaging with the English Premier League (EPL) season, it is a competitive game where people play as managers and pick a team of EPL footballers constrained by a budget and a number of rules that determine allowed formations and limit of players from a given team. During the pre-season before the EPL restarts most premier league teams will buy and sell a number of players, so there is generally a great deal of uncertainty about who the best teams and players will be. Of course, managers (the FPL ones) are not trying to find the best players but the 11 players that will score the most points within budget.
+
+In this notebook we assume that the points performance in the previous season, 2023/24, are the estimates of the players points in the upcoming season - naturally this is likely not the best approach, but is a good enough starting point without having to predict team and player performance - and use linear optimisation to find the optimal starting 11 and subs bench constrained by budget and the FPL rules on team formation and limits on players from each team. In FPL, managers are allowed to make one transfer each week which means that the upcoming fixtures should play a role in initial team selection because players can be transferred in and out of the team regularly. 
+
+To get the data we can use the *pandas-fpl* library which uses the *fpl* wrapper for the Fantasy Premier League API and returns the request already in a pandas dataframe. 
 
 
 ```python
@@ -70,7 +74,9 @@ df_players_recent['player_name'] = df_players_recent['first_name'] + ' ' + df_pl
 
 ```
 
-Because the FPL allows transfers through-out the season, it is beneficial to consider the opening set of fixtures for each team and potentially disallowing players from certain teams when setting up the constraints in the LP model. In this notebook we use the FPL Home and Away strengths, although we could also estimate these ourselves. 
+**Fixture Analysis**
+
+As stated, because the FPL allows transfers through-out the season, it is beneficial to consider the opening set of fixtures for each team and potentially disallowing players from certain teams when setting up the constraints in the LP model. In this notebook we use the FPL-provided Home and Away strengths, although we could also estimate these ourselves. Teams with very difficult opening fixtures will use a lower limit on the number of players we are willing to accept from that team. 
 
 
 ```python
@@ -114,6 +120,7 @@ remove_teams = ['Wolves', 'West Ham', 'Ipswich', 'Brentford', 'Bournemouth']
 
 **Player Analysis**
 
+To better understand the relationship between points earned last season and the starting value this season we produce a scatter plot, highlighting the top players which are very likely to feature in the majority of FPL teams. 
 
 ```python
 scatter_data = df_players_recent[df_players_recent['minutes'] > 2000]
@@ -183,6 +190,7 @@ plt.show()
 
 **Optimisation Model**
 
+The problem can be stated as optimising the total points constrained by budget, the sum of the transfer values, and the limit of players from each team and this naturally leads to a *linear programming* (LP) problem. 
 
 ```python
 # Optimisation Model Data:
@@ -193,20 +201,6 @@ opt_data['player_name'] = opt_data['player_name'].str.replace(' ', '_')
 opt_data.set_index(['player_name'], inplace=True)
 
 ```
-
-    /var/folders/jc/5nx7wblj259gds_x28md29q80000gn/T/ipykernel_57093/90032170.py:4: SettingWithCopyWarning: 
-    A value is trying to be set on a copy of a slice from a DataFrame.
-    Try using .loc[row_indexer,col_indexer] = value instead
-    
-    See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
-      opt_data['player_name'] = opt_data["player_name"].apply(lambda x: ''.join([" " if ord(i) < 32 or ord(i) > 126 else i for i in x]))
-    /var/folders/jc/5nx7wblj259gds_x28md29q80000gn/T/ipykernel_57093/90032170.py:5: SettingWithCopyWarning: 
-    A value is trying to be set on a copy of a slice from a DataFrame.
-    Try using .loc[row_indexer,col_indexer] = value instead
-    
-    See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
-      opt_data['player_name'] = opt_data['player_name'].str.replace(' ', '_')
-
 
 
 ```python
@@ -233,11 +227,6 @@ for team, limit in team_limits.items():
     constraint = pulp.lpSum([player_vars[i] for i in opt_data.index if opt_data.loc[i, 'team'] == team])
     lp_model += constraint <= limit, f"Max_{team}"
 ```
-
-    /Users/phillip/Library/Caches/pypoetry/virtualenvs/notebook-repo-gCPSRjOd-py3.11/lib/python3.11/site-packages/pulp/pulp.py:1298: UserWarning: Spaces are not permitted in the name. Converted to '_'
-      warnings.warn("Spaces are not permitted in the name. Converted to '_'")
-
-
 
 ```python
 # Run Solver:
@@ -289,6 +278,7 @@ print("Total Points:", pulp.value(lp_model.objective))
     Total Points: 1961.0
 
 
+We ran the LP algorithm multiple times, one for each possible formation allowed in the FPL rules.
 
 ```python
 # 442:
@@ -317,12 +307,9 @@ print(f"433 - cost:{selected_players[['now_cost']].sum().iloc[0]} and points:{se
 
 
 
-```python
-
-```
-
 **Substitutes**
 
+We repeat the LP algorithm to find the substitute bench; we adjust the player team limits for the starting 11 we found above.
 
 ```python
 opt_substitute_data = opt_data[~opt_data.index.isin(selected_players.index)]
@@ -355,123 +342,12 @@ for team, limit in team_limits.items():
 
 ```
 
-    /Users/phillip/Library/Caches/pypoetry/virtualenvs/notebook-repo-gCPSRjOd-py3.11/lib/python3.11/site-packages/pulp/pulp.py:1298: UserWarning: Spaces are not permitted in the name. Converted to '_'
-      warnings.warn("Spaces are not permitted in the name. Converted to '_'")
-
-
 
 ```python
 # Run Solver:
 lp_model.solve()
 
 ```
-
-    Welcome to the CBC MILP Solver 
-    Version: 2.10.3 
-    Build Date: Dec 15 2019 
-    
-    command line - /Users/phillip/Library/Caches/pypoetry/virtualenvs/notebook-repo-gCPSRjOd-py3.11/lib/python3.11/site-packages/pulp/solverdir/cbc/osx/64/cbc /var/folders/jc/5nx7wblj259gds_x28md29q80000gn/T/747538fd83aa4f9b98fe263bee104524-pulp.mps -max -timeMode elapsed -branch -printingOptions all -solution /var/folders/jc/5nx7wblj259gds_x28md29q80000gn/T/747538fd83aa4f9b98fe263bee104524-pulp.sol (default strategy 1)
-    At line 2 NAME          MODEL
-    At line 3 ROWS
-    At line 25 COLUMNS
-    At line 578 RHS
-    At line 599 BOUNDS
-    At line 692 ENDATA
-    Problem MODEL has 20 rows, 92 columns and 276 elements
-    Coin0008I MODEL read with 0 errors
-    Option for timeMode changed from cpu to elapsed
-    Continuous objective value is 461.333 - 0.00 seconds
-    Cgl0002I 46 variables fixed
-    Cgl0003I 0 fixed, 0 tightened bounds, 2 strengthened rows, 0 substitutions
-    Cgl0004I processed model has 12 rows, 39 columns (39 integer (38 of which binary)) and 109 elements
-    Cutoff increment increased from 1e-05 to 0.9999
-    Cbc0038I Initial state - 2 integers unsatisfied sum - 0.666667
-    Cbc0038I Solution found of -439
-    Cbc0038I Cleaned solution of -439
-    Cbc0038I Before mini branch and bound, 37 integers at bound fixed and 0 continuous
-    Cbc0038I Full problem 12 rows 39 columns, reduced to 0 rows 0 columns
-    Cbc0038I Mini branch and bound did not improve solution (0.01 seconds)
-    Cbc0038I Round again with cutoff of -442.133
-    Cbc0038I Reduced cost fixing fixed 18 variables on major pass 2
-    Cbc0038I Pass   1: suminf.    0.09353 (2) obj. -442.133 iterations 3
-    Cbc0038I Pass   2: suminf.    0.66667 (2) obj. -453.333 iterations 4
-    Cbc0038I Pass   3: suminf.    0.38312 (2) obj. -442.133 iterations 3
-    Cbc0038I Pass   4: suminf.    0.66667 (4) obj. -442.133 iterations 3
-    Cbc0038I Pass   5: suminf.    0.46104 (2) obj. -442.133 iterations 1
-    Cbc0038I Pass   6: suminf.    0.66667 (2) obj. -445.667 iterations 6
-    Cbc0038I Pass   7: suminf.    0.29689 (2) obj. -442.133 iterations 4
-    Cbc0038I Pass   8: suminf.    1.00000 (3) obj. -442.133 iterations 5
-    Cbc0038I Pass   9: suminf.    1.00000 (3) obj. -442.133 iterations 3
-    Cbc0038I Pass  10: suminf.    0.37740 (2) obj. -442.133 iterations 4
-    Cbc0038I Pass  11: suminf.    0.66667 (2) obj. -449 iterations 2
-    Cbc0038I Pass  12: suminf.    1.32064 (4) obj. -442.133 iterations 4
-    Cbc0038I Pass  13: suminf.    0.87452 (3) obj. -442.133 iterations 8
-    Cbc0038I Pass  14: suminf.    1.66667 (5) obj. -442.133 iterations 3
-    Cbc0038I Pass  15: suminf.    1.05893 (4) obj. -442.133 iterations 3
-    Cbc0038I Pass  16: suminf.    1.05893 (4) obj. -442.133 iterations 0
-    Cbc0038I Pass  17: suminf.    0.66667 (2) obj. -453.333 iterations 2
-    Cbc0038I Pass  18: suminf.    0.38312 (2) obj. -442.133 iterations 1
-    Cbc0038I Pass  19: suminf.    0.92099 (4) obj. -442.133 iterations 5
-    Cbc0038I Pass  20: suminf.    0.29689 (2) obj. -442.133 iterations 3
-    Cbc0038I Pass  21: suminf.    0.98789 (2) obj. -442.133 iterations 1
-    Cbc0038I Solution found of -453
-    Cbc0038I Cleaned solution of -453
-    Cbc0038I Before mini branch and bound, 22 integers at bound fixed and 0 continuous
-    Cbc0038I Full problem 12 rows 39 columns, reduced to 2 rows 5 columns
-    Cbc0038I Mini branch and bound did not improve solution (0.02 seconds)
-    Cbc0038I Round again with cutoff of -455.467
-    Cbc0038I Reduced cost fixing fixed 33 variables on major pass 3
-    Cbc0038I Pass  22: suminf.    0.49154 (2) obj. -455.467 iterations 0
-    Cbc0038I Pass  23: suminf.    0.66667 (2) obj. -461.333 iterations 2
-    Cbc0038I Pass  24: suminf.    0.66667 (2) obj. -461.333 iterations 0
-    Cbc0038I Pass  25: suminf.    0.66667 (2) obj. -461.333 iterations 0
-    Cbc0038I Pass  26: suminf.    0.66667 (2) obj. -461.333 iterations 0
-    Cbc0038I Pass  27: suminf.    0.49154 (2) obj. -455.467 iterations 1
-    Cbc0038I Pass  28: suminf.    0.49154 (2) obj. -455.467 iterations 1
-    Cbc0038I Pass  29: suminf.    0.49154 (2) obj. -455.467 iterations 0
-    Cbc0038I Pass  30: suminf.    0.49154 (2) obj. -455.467 iterations 0
-    Cbc0038I Pass  31: suminf.    0.66667 (2) obj. -461.333 iterations 1
-    Cbc0038I Pass  32: suminf.    0.49154 (2) obj. -455.467 iterations 1
-    Cbc0038I Pass  33: suminf.    0.49154 (2) obj. -455.467 iterations 0
-    Cbc0038I Pass  34: suminf.    0.49154 (2) obj. -455.467 iterations 0
-    Cbc0038I Pass  35: suminf.    0.87056 (3) obj. -455.467 iterations 3
-    Cbc0038I Pass  36: suminf.    0.61665 (2) obj. -455.467 iterations 1
-    Cbc0038I Solution found of -461
-    Cbc0038I Cleaned solution of -461
-    Cbc0038I Before mini branch and bound, 35 integers at bound fixed and 0 continuous
-    Cbc0038I Mini branch and bound did not improve solution (0.02 seconds)
-    Cbc0038I After 0.02 seconds - Feasibility pump exiting with objective of -461 - took 0.00 seconds
-    Cbc0012I Integer solution of -461 found by feasibility pump after 0 iterations and 0 nodes (0.02 seconds)
-    Cbc0001I Search completed - best objective -461, took 0 iterations and 0 nodes (0.02 seconds)
-    Cbc0035I Maximum depth 0, 33 variables fixed on reduced cost
-    Cuts at root node changed objective from -461.333 to -461.333
-    Probing was tried 0 times and created 0 cuts of which 0 were active after adding rounds of cuts (0.000 seconds)
-    Gomory was tried 0 times and created 0 cuts of which 0 were active after adding rounds of cuts (0.000 seconds)
-    Knapsack was tried 0 times and created 0 cuts of which 0 were active after adding rounds of cuts (0.000 seconds)
-    Clique was tried 0 times and created 0 cuts of which 0 were active after adding rounds of cuts (0.000 seconds)
-    MixedIntegerRounding2 was tried 0 times and created 0 cuts of which 0 were active after adding rounds of cuts (0.000 seconds)
-    FlowCover was tried 0 times and created 0 cuts of which 0 were active after adding rounds of cuts (0.000 seconds)
-    TwoMirCuts was tried 0 times and created 0 cuts of which 0 were active after adding rounds of cuts (0.000 seconds)
-    ZeroHalf was tried 0 times and created 0 cuts of which 0 were active after adding rounds of cuts (0.000 seconds)
-    
-    Result - Optimal solution found
-    
-    Objective value:                461.00000000
-    Enumerated nodes:               0
-    Total iterations:               0
-    Time (CPU seconds):             0.01
-    Time (Wallclock seconds):       0.02
-    
-    Option for printingOptions changed from normal to all
-    Total time (CPU seconds):       0.01   (Wallclock seconds):       0.02
-    
-
-
-
-
-
-    1
-
 
 
 
@@ -503,8 +379,3 @@ print("Total Points:", pulp.value(lp_model.objective))
     Jo_o_Pedro_Junqueira_de_Jesus        Brighton      FWD             4  
     Total Points: 461.0
 
-
-
-```python
-
-```
