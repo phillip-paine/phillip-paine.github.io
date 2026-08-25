@@ -1,0 +1,209 @@
+:root{
+  --paper:#F5F3EC;
+  --paper-dim:#EDEAE0;
+  --ink:#1C2A33;
+  --ink-soft:#54606A;
+  --teal:#1F6F63;
+  --gold:#B8863B;
+  --line:#D8D3C4;
+  --max: 840px;
+  --max-narrow: 760px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{
+  background:var(--paper);
+  color:var(--ink);
+  font-family:'Public Sans',sans-serif;
+  line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:var(--max);margin:0 auto;padding:0 28px;}
+.wrap.narrow{max-width:var(--max-narrow);}
+
+/* back link, used on sub-pages */
+.backlink{
+  display:inline-block;
+  margin-top:36px;
+  font-family:'IBM Plex Mono',monospace;
+  font-size:12.5px;
+  color:var(--ink-soft);
+  text-decoration:none;
+}
+.backlink:hover{color:var(--teal);}
+
+/* homepage hero */
+header.site{padding:64px 0 0;}
+.eyebrow{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:12.5px;
+  letter-spacing:0.06em;
+  color:var(--teal);
+  text-transform:lowercase;
+  margin-bottom:18px;
+}
+h1{
+  font-family:'Newsreader',serif;
+  font-weight:500;
+  font-size:clamp(38px,6vw,56px);
+  letter-spacing:-0.01em;
+  line-height:1.05;
+}
+.role{
+  font-family:'Newsreader',serif;
+  font-style:italic;
+  font-weight:400;
+  font-size:21px;
+  color:var(--ink-soft);
+  margin-top:10px;
+}
+.dek{
+  max-width:56ch;
+  margin-top:22px;
+  font-size:16.5px;
+  color:var(--ink-soft);
+}
+nav.links{
+  display:flex;
+  gap:22px;
+  margin-top:30px;
+  padding-bottom:36px;
+  font-family:'IBM Plex Mono',monospace;
+  font-size:13px;
+  flex-wrap:wrap;
+  align-items:baseline;
+}
+nav.links a{color:var(--ink);text-decoration:none;border-bottom:1px solid var(--teal);padding-bottom:2px;}
+nav.links a.muted{border-bottom-color:var(--line);color:var(--ink-soft);}
+
+/* stats strip */
+.stats{
+  display:flex;
+  border-top:1px solid var(--line);
+  border-bottom:1px solid var(--line);
+}
+.stat{flex:1;padding:22px 24px;border-left:1px solid var(--line);}
+.stat:first-child{border-left:none;}
+.stat .num{font-family:'IBM Plex Mono',monospace;font-size:22px;font-weight:500;color:var(--teal);}
+.stat .label{font-size:12.5px;color:var(--ink-soft);margin-top:4px;}
+
+/* generic sections */
+section{padding:56px 0;border-bottom:1px solid var(--line);}
+section:last-of-type{border-bottom:none;}
+.section-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:30px;}
+h2{font-family:'Newsreader',serif;font-weight:500;font-size:25px;}
+.count{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--ink-soft);}
+
+/* simple sub-page header (Projects page etc) */
+header.page-head{padding:26px 0 40px;border-bottom:1px solid var(--line);}
+header.page-head h1{font-size:38px;}
+header.page-head .dek{margin-top:14px;font-size:15.5px;}
+
+/* experience / role rows, used on homepage and Work page */
+.role-item{display:grid;grid-template-columns:120px 1fr;gap:20px;padding:20px 0;border-top:1px solid var(--line);}
+.role-item:first-child{border-top:none;}
+.role-item .when{font-family:'IBM Plex Mono',monospace;font-size:12.5px;color:var(--ink-soft);padding-top:3px;}
+.role-item h3{font-size:16.5px;font-weight:600;}
+.role-item .org{color:var(--teal);font-size:14px;font-weight:500;margin:2px 0 8px;}
+.role-item p{color:var(--ink-soft);font-size:14.5px;max-width:56ch;}
+.role-item ul{margin-left:18px;color:var(--ink-soft);font-size:14px;}
+.role-item li{margin-top:4px;}
+
+/* project tiles — TODO: swap tile-band color blocks for a small screenshot
+   of each project (e.g. the football league table prediction UI) once
+   those are live. Keep the label + arrow overlaid on the image when that
+   happens, same layout, just background: url(...) instead of a flat color. */
+.tiles{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+.tile{
+  display:block;
+  text-decoration:none;
+  color:var(--ink);
+  border:1px solid var(--line);
+  background:var(--paper-dim);
+  overflow:hidden;
+  transition:border-color .15s ease, transform .15s ease;
+}
+.tile:hover{border-color:var(--teal);transform:translateY(-2px);}
+.tile-band{
+  height:64px;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 20px;
+  font-family:'IBM Plex Mono',monospace;
+  font-size:11px;
+  text-transform:uppercase;
+  letter-spacing:.05em;
+}
+.tile-band.c1{background:#DCE7E3;color:#1F6F63;}
+.tile-band.c2{background:#EFE1C9;color:#8A5F1E;}
+.tile-band.c3{background:#E4DEEF;color:#5B4A8A;}
+.tile-band.c4{background:#E0E8EC;color:#33565F;}
+.tile-band .arrow{font-size:14px;}
+.tile-body{padding:18px 20px 22px;}
+.tile h3{font-size:16px;font-weight:600;}
+.tile p{font-size:14px;color:var(--ink-soft);margin-top:6px;}
+.tile .stack{margin-top:14px;font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:var(--ink-soft);}
+
+/* publications, used on homepage and Work page */
+.pubs{display:flex;flex-direction:column;gap:16px;}
+.pub{border-top:1px solid var(--line);padding-top:16px;}
+.pub:first-child{border-top:none;padding-top:0;}
+.pub .venue{font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:var(--teal);}
+.pub h3{font-size:15.5px;font-weight:500;margin:4px 0;font-style:italic;font-family:'Newsreader',serif;}
+.pub .authors{font-size:13.5px;color:var(--ink-soft);}
+
+/* small mono section heading, used on the Work page in place of the serif h2 */
+h2.mono-heading{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:12.5px;
+  letter-spacing:.06em;
+  text-transform:uppercase;
+  color:var(--teal);
+  margin-bottom:22px;
+}
+
+/* Work/CV page header with download button */
+header.cv-head{
+  padding:26px 0 34px;
+  border-bottom:1px solid var(--line);
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-end;
+  flex-wrap:wrap;
+  gap:20px;
+}
+header.cv-head h1{font-size:38px;}
+header.cv-head .role{font-size:17px;margin-top:6px;}
+.download-btn{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:13px;
+  color:var(--paper);
+  background:var(--ink);
+  padding:10px 18px;
+  text-decoration:none;
+  white-space:nowrap;
+}
+.download-btn:hover{background:var(--teal);}
+
+/* Work/CV page: education + skills */
+.edu-item{padding:14px 0;border-top:1px solid var(--line);}
+.edu-item:first-child{border-top:none;padding-top:0;}
+.edu-item h3{font-size:15.5px;font-weight:600;}
+.edu-item .meta{font-size:13.5px;color:var(--ink-soft);margin-top:3px;}
+
+.skills{display:grid;grid-template-columns:1fr 1fr;gap:24px;}
+.skill-group .label{font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:var(--gold);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px;}
+.skill-group p{font-size:14.5px;color:var(--ink-soft);}
+
+/* footer, used on every page */
+footer{padding:44px 0 70px;}
+footer p{font-size:13.5px;color:var(--ink-soft);}
+footer .contact{display:flex;gap:24px;margin-top:14px;font-family:'IBM Plex Mono',monospace;font-size:13px;flex-wrap:wrap;}
+footer a{color:var(--ink);}
+
+@media (max-width:600px){
+  .tiles{grid-template-columns:1fr;}
+  .role-item{grid-template-columns:1fr;}
+  .skills{grid-template-columns:1fr;}
+  .stats{flex-wrap:wrap;}
+  .stat{flex:1 1 50%;border-bottom:1px solid var(--line);}
+  header.cv-head{align-items:flex-start;}
+}
