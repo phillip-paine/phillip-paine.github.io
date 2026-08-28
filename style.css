@@ -142,7 +142,75 @@ header.page-head .dek{margin-top:14px;font-size:15.5px;}
 .tile p{font-size:14px;color:var(--ink-soft);margin-top:6px;}
 .tile .stack{margin-top:14px;font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:var(--ink-soft);}
 
-/* publications, used on homepage and Work page */
+/* About section narrative paragraph */
+.about-text{
+  max-width:60ch;
+  font-size:15.5px;
+  color:var(--ink-soft);
+}
+
+/* image-backed tile (real screenshot instead of a flat color band) */
+.tile-image{
+  height:180px;
+  background-size:cover;
+  background-position:top center;
+  position:relative;
+  border-bottom:1px solid var(--line);
+}
+.tile-image .tile-label{
+  position:absolute;bottom:12px;left:14px;
+  background:rgba(28,42,51,0.85);
+  color:#F5F3EC;
+  font-family:'IBM Plex Mono',monospace;
+  font-size:11px;
+  text-transform:uppercase;
+  letter-spacing:.05em;
+  padding:4px 10px;
+}
+.tile-image .tile-arrow{
+  position:absolute;top:12px;right:14px;
+  color:#F5F3EC;
+  font-size:13px;
+  background:rgba(28,42,51,0.65);
+  padding:3px 9px;
+}
+
+/* featured project — single larger card on the homepage */
+.featured{
+  display:block;
+  text-decoration:none;
+  color:var(--ink);
+  border:1px solid var(--line);
+  background:var(--paper-dim);
+  overflow:hidden;
+  transition:border-color .15s ease, transform .15s ease;
+}
+.featured:hover{border-color:var(--teal);transform:translateY(-2px);}
+.featured .tile-image{height:260px;}
+.featured .tile-body{padding:20px 24px 26px;}
+.featured .tile-body h3{font-size:18px;}
+.featured .tile-body p{font-size:14.5px;margin-top:8px;}
+
+/* "coming soon" placeholder tile — not yet a real link */
+.tile-soon{
+  border:1px dashed var(--line);
+  background:transparent;
+  padding:22px 20px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  min-height:130px;
+  text-align:center;
+}
+.tile-soon p{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:12.5px;
+  color:var(--ink-soft);
+  text-transform:uppercase;
+  letter-spacing:.04em;
+}
+
+/* publications, used on the Publications page and Work page */
 .pubs{display:flex;flex-direction:column;gap:16px;}
 .pub{border-top:1px solid var(--line);padding-top:16px;}
 .pub:first-child{border-top:none;padding-top:0;}
